@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>🚀 CosmoCode Shop</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      margin: 0;
+      padding: 0;
+      transition: background 0.5s, color 0.5s;
+      overflow-x: hidden;
+    }
+
+    /* tryby kolorów */
+    body.dark {
+      background: linear-gradient(135deg, #0f0f1c, #1a1a2e);
+      color: #fff;
+    }
+    body.light {
+      background: linear-gradient(135deg, #f0f0ff, #ffffff);
+      color: #222;
+    }
+
+    header {
+      background: #0d0d24;
+      color: #fff;
+      padding: 20px;
+      font-size: 32px;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 2px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .mode-switch {
+      position: absolute;
+      right: 20px;
+      top: 20px;
+      padding: 8px 14px;
+      background: #5865f2;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #fff;
+    }
+
+    .container {
+      max-width: 850px;
+      margin: 40px auto;
+      padding: 20px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .product {
+      background: rgba(35,35,74,0.9);
+      margin: 25px 0;
+      padding: 20px;
+      border-radius: 14px;
+      box-shadow: 0 0 15px rgba(0,0,0,0.6);
+      transition: transform 0.25s, box-shadow 0.25s;
+    }
+    body.light .product {
+      background: #eaeaff;
+      color: #000;
+    }
+    .product:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 25px rgba(88,101,242,0.8);
+    }
+
+    button {
+      background: #5865f2;
+      border: none;
+      color: white;
+      padding: 12px 24px;
+      margin-top: 10px;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.25s, transform 0.2s;
+    }
+    button:hover {
+      background: #4752c4;
+      transform: scale(1.05);
+    }
+
+    input, textarea {
+      width: 90%;
+      padding: 10px;
+      margin-top: 10px;
+      border-radius: 6px;
+      border: none;
+      font-size: 15px;
+    }
+
+    .discord-link {
+      display: inline-block;
+      margin: 30px auto;
+      background: #7289da;
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 18px;
+      transition: background 0.25s, transform 0.2s;
+    }
+    .discord-link:hover {
+      background: #5b6eae;
+      transform: scale(1.08);
+    }
+
+    #cart, #history {
+      margin-top: 40px;
+      padding: 20px;
+      border-radius: 10px;
+      background: rgba(20,20,40,0.9);
+    }
+    body.light #cart, body.light #history {
+      background: #f5f5ff;
+      color: #000;
+    }
+
+    footer {
+      margin-top: 50px;
+      padding: 20px;
+      font-size: 14px;
+      background: #0d0d24;
+      color: #fff;
+      text-align: center;
+    }
+
+    .success { color: #4CAF50; font-weight: bold; }
+    .error { color: #FF5252; font-weight: bold; }
+
+    /* efekt gwiazd */
+    .stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      animation: twinkle 3s infinite;
+    }
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.8; }
+      50% { opacity: 0.2; }
+    }
+  </style>
+</head>
+<body class="dark">
+  <header>
+    🚀 CosmoCode Shop
+    <button class="mode-switch" onclick="toggleMode()">🌙/☀️</button>
+  </header>
+
+  <div class="container">
+    <h2>Nasze oferty</h2>
+
+    <div class="product">
+      <h3>⭐ Strefa Premium</h3>
+      <p>Dostęp do ekskluzywnych funkcji i kanałów.</p>
+      <p>Cena: <b>20 zł</b></p>
+      <button onclick="addToCart('Strefa Premium', 20)">Dodaj do koszyka</button>
+    </div>
+
+    <div class="product">
+      <h3>💰 Paczka GenCash</h3>
+      <p>Wirtualna waluta do wykorzystania w CosmoCode.</p>
+      <p>Cena: <b>10 zł</b></p>
+      <button onclick="addToCart('Paczka GenCash', 10)">Dodaj do koszyka</button>
+    </div>
+
+    <div class="product">
+      <h3>🔧 Plugin na zamówienie</h3>
+      <p>Podaj nazwę i opis pluginu, a my go stworzymy!</p>
+      <p>Cena: <b>50 zł</b></p>
+      <input type="text" id="pluginName" placeholder="Nazwa pluginu">
+      <textarea id="pluginDesc" placeholder="Opis pluginu (co ma robić)"></textarea>
+      <button onclick="addPluginToCart()">Dodaj do koszyka</button>
+    </div>
+
+    <a href="TUTAJ_DODASZ_LINK_DO_DISCORDA" class="discord-link">🌌 Dołącz do CosmoCode</a>
+
+    <!-- Koszyk -->
+    <div id="cart">
+      <h3>🛒 Twój koszyk</h3>
+      <ul id="cartList"></ul>
+      <p><b>Suma:</b> <span id="total">0</span> zł</p>
+      <button onclick="checkout()">Kup wszystko</button>
+    </div>
+
+    <!-- Historia -->
+    <div id="history">
+      <h3>📜 Historia zakupów</h3>
+      <ul id="historyList"></ul>
+    </div>
+
+    <div id="status"></div>
+  </div>
+
+  <footer>
+    &copy; 2025 CosmoCode • Płatności: <b>Paysafecard</b> • <button onclick="toggleMusic()">🎵 Muzyka</button>
+  </footer>
+
+  <div class="stars" id="stars"></div>
+
+  <script>
+    const webhookUrl = "TUTAJ_DODASZ_WEBHOOK";
+    let cart = [];
+    let darkMode = true;
+    let musicPlaying = false;
+    const audio = new Audio("https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3");
+
+    function sendWebhook(product, price, extra="") {
+      const payload = {
+        content: `🛒 Zakup w CosmoCode: **${product}** za **${price} zł** ${extra}`
+      };
+
+      fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      }).then(res => {
+        if (res.ok) {
+          document.getElementById("status").innerHTML = "<p class='success'>✅ Zakup wysłany!</p>";
+        } else {
+          document.getElementById("status").innerHTML = "<p class='error'>❌ Błąd wysyłania!</p>";
+        }
+      }).catch(() => {
+        document.getElementById("status").innerHTML = "<p class='error'>❌ Brak połączenia!</p>";
+      });
+    }
+
+    function addToCart(product, price) {
+      cart.push({product, price});
+      updateCart();
+    }
+
+    function addPluginToCart() {
+      const name = document.getElementById("pluginName").value;
+      const desc = document.getElementById("pluginDesc").value;
+      if (!name || !desc) {
+        alert("Podaj nazwę i opis pluginu!");
+        return;
+      }
+      cart.push({product: "Plugin: " + name, price: 50, extra: `\n📄 Opis: ${desc}`});
+      updateCart();
+    }
+
+    function updateCart() {
+      const list = document.getElementById("cartList");
+      list.innerHTML = "";
+      let total = 0;
+      cart.forEach((item, index) => {
+        total += item.price;
+        const li = document.createElement("li");
+        li.textContent = `${item.product} - ${item.price} zł`;
+        list.appendChild(li);
+      });
+      document.getElementById("total").textContent = total;
+    }
+
+    function checkout() {
+      if (cart.length === 0) {
+        alert("Koszyk jest pusty!");
+        return;
+      }
+      cart.forEach(item => {
+        sendWebhook(item.product, item.price, item.extra || "");
+        addToHistory(item.product, item.price);
+      });
+      cart = [];
+      updateCart();
+    }
+
+    function addToHistory(product, price) {
+      const list = document.getElementById("historyList");
+      const li = document.createElement("li");
+      li.textContent = `${product} - ${price} zł`;
+      list.appendChild(li);
+    }
+
+    function toggleMode() {
+      darkMode = !darkMode;
+      document.body.className = darkMode ? "dark" : "light";
+      localStorage.setItem("cosmoMode", darkMode ? "dark" : "light");
+    }
+
+    function toggleMusic() {
+      if (musicPlaying) {
+        audio.pause();
+      } else {
+        audio.loop = true;
+        audio.play();
+      }
+      musicPlaying = !musicPlaying;
+    }
+
+    function createStars() {
+      const stars = document.getElementById("stars");
+      for (let i = 0; i < 100; i++) {
+        const star = document.createElement("div");
+        star.className = "star";
+        const size = Math.random() * 3 + "px";
+        star.style.width = size;
+        star.style.height = size;
+        star.style.top = Math.random() * 100 + "%";
+        star.style.left = Math.random() * 100 + "%";
+        stars.appendChild(star);
+      }
+    }
+
+    window.onload = () => {
+      createStars();
+      const savedMode = localStorage.getItem("cosmoMode");
+      if (savedMode) {
+        document.body.className = savedMode;
+        darkMode = savedMode === "dark";
+      }
+    }
+  </script>
+</body>
+</html>
